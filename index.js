@@ -85,3 +85,8 @@ app.use((req, res) => {
 
 
 // TODO: delete all unnecessary dependencies from package.json
+
+
+const data = require('./getData')
+data.readDataFromCsvFileAndInitiate();
+// TODO: why do i get 2 data loaded prints 
