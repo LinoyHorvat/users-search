@@ -82,3 +82,6 @@ app.use((req, res) => {
   server = app.listen(PORT, function() {
     console.log(`Test Server listening.. Access it using address: http://localhost:${PORT}`);
   });
+
+
+// TODO: delete all unnecessary dependencies from package.json
