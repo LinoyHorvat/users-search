@@ -88,8 +88,61 @@ const addUserToId = (user)=> {
   }
   else userHashByYear.set(year,[user.id])
 }
+/*----------------------------------------------------------------
+get 
+/*----------------------------------------------------------------*/
+/**
+ * @function getUserById
+ * get user by Id
+ */
+const getUserById = (id)=> {
+  id = id.toLowerCase()
+  return userHashByID.get(id) ? userHashByID.get(id) : "Wrong ID entered"
+}
+/**
+ * @function getUserByCountry
+ * get user by Country
+ */
+const getUserByCountry = (country)=> {
+  country = country.toLowerCase()
+  return userHashByCountry.get(country) ? userHashByCountry.get(country) : "Wrong country entered"
+}
+/**
+ * @function getUserByAge
+ * get user by Age
+ */
+const getUserByAge = (age)=> {
+  const year =  new Date().getFullYear() - age
+  console.log(year);
+  return userHashByYear.get(year) ? userHashByYear.get(year) : "Wrong age entered"
+}
 
 
+
+/*----------------------------------------------------------------
+ delete
+/*----------------------------------------------------------------*/
+/**
+ * @function deleteUser
+ * Main function for deleteing a user. calling all relevant function to delete the user.
+ */
+const deleteUser = (id)=> {
+  id = id.toLowerCase()
+  // if user doesnt exists:
+  if(!userHashByID.get(id)){
+    return "User id dosen't exist"
+  }
+  deleteUserFromHashId(id)
+
+}
+/**
+ * @function deleteUser
+ * Main function for deleteing a user. calling all relevant function to delete the user.
+ */
+// TODO: what to return when user is deleted
+const deleteUserFromHashId = (id)=> {
+  if(userHashByID.delete(id)) return id;
+}
 
 /*----------------------------------------------------------------
 Export 
@@ -98,4 +151,8 @@ Export
 readDataFromCsvFileAndInitiate();
 module.exports = {
   readDataFromCsvFileAndInitiate,
+  getUserById,
+  getUserByCountry,
+  getUserByAge,
+  deleteUser
 };
