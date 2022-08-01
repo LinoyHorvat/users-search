@@ -1,6 +1,8 @@
 const fs = require("fs-extra");
 const async = require("async");
 const csv = require("csv-parser");
+const TrieSearch = require('trie-search');
+
 // TODO: understand what csv-parser is & createReadStream & pipe
 
 /*----------------------------------------------------------------
@@ -13,6 +15,8 @@ constants
 const userHashByID = new Map();
 const userHashByCountry = new Map();
 const userHashByYear = new Map();
+// const userTrie = new TrieSearch("name",{min: 3});
+const userTrie = new TrieSearch();
 
 /*----------------------------------------------------------------
 initiates 
@@ -33,6 +37,7 @@ function readDataFromCsvFileAndInitiate() {
       addUserToId(user);
       addUserToCountry(user);
       addUserToYear(user);
+      addUserToTrie(user)
     })
     .on("end", function () {
       console.log("Data loaded");
@@ -85,6 +90,15 @@ const addUserToYear = (user) => {
     userHashByYear.set(year, arrOfId);
   } else userHashByYear.set(year, [user.id]);
 };
+/**
+ * @function addUserToTrie
+ * add user to addUserToTrie trie
+ */
+const addUserToTrie = (user) => {
+  const name = user.name.replace(' ','%20')
+  console.log(user.id,name);
+  userTrie.map(name,user.id)
+};
 /*----------------------------------------------------------------
 get 
 /*----------------------------------------------------------------*/
@@ -116,6 +130,15 @@ const getUserByAge = (age) => {
   return userHashByYear.get(year)
     ? userHashByYear.get(year)
     : "Age dosen't exist";
+};
+/**
+ * @function getUserByName
+ * get user by Age
+ */
+// TODO: fix first and last name issue 
+const getUserByName = (name) => {
+  name = name.replace(' ','%20')
+  return userTrie.search(name);
 };
 
 /*----------------------------------------------------------------
@@ -171,4 +194,5 @@ module.exports = {
   getUserByCountry,
   getUserByAge,
   deleteUser,
+  getUserByName
 };

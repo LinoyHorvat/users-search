@@ -17,11 +17,8 @@ module.exports = {
     },
 
     getUsersByName: async function(name) {
-        console.log(`searchUsersByName called with name: ${name}`);
-        
-        // Add implementation here
-        
-        return [];
+        console.log(`searchUsersByName called with name: ${name}`);        
+        return data.getUserByName(name);
     },
 
     deleteUser: async function(id) {
