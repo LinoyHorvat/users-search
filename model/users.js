@@ -26,6 +26,6 @@ module.exports = {
 
     deleteUser: async function(id) {
         console.log(`deleteUser called with id: ${id}`);        
-        return deleteUser(id)
+        return data.deleteUser(id)
     }
 }

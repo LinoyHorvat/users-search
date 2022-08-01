@@ -89,4 +89,3 @@ app.use((req, res) => {
 
 const data = require('./getData')
 data.readDataFromCsvFileAndInitiate();
-// TODO: why do i get 2 data loaded prints 
