@@ -186,8 +186,10 @@ const returnUserFunction = (op, val) => {
     }
   }
   return arrOfId
-    ? arrOfId.map((id) => {
-        if (userHashByID.get(id)) return userHashByID.get(id);
+    ? arrOfId.filter((id)=> {
+      return userHashByID.get(id) !== undefined
+    }).map((id) => {
+        return userHashByID.get(id);
       })
     : "no user found";
 };

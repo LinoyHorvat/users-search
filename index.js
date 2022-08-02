@@ -85,7 +85,8 @@ app.use((req, res) => {
 
 
 // TODO: delete all unnecessary dependencies from package.json
-
+// TODO: dont send all user when search 
+// TODO: search from 3 letters only
 
 const data = require('./getData')
 data.readDataFromCsvFileAndInitiate();
