@@ -83,10 +83,5 @@ app.use((req, res) => {
     console.log(`Test Server listening.. Access it using address: http://localhost:${PORT}`);
   });
 
-
-// TODO: delete all unnecessary dependencies from package.json
-// TODO: dont send all user when search 
-// TODO: search from 3 letters only
-
 const data = require('./getData')
 data.readDataFromCsvFileAndInitiate();

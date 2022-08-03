@@ -3,12 +3,20 @@ const async = require("async");
 const csv = require("csv-parser");
 const TrieSearch = require("trie-search");
 
-// TODO: understand what csv-parser is & createReadStream & pipe
-// TODO: didn't use async await 
+// TODO: Shouldn't i use async await????
+// TODO: What to do with overflow? when there to many user with the same search. should i send them all back from the memory?
+// TODO: To calculate the users real age!!!!
+// TODO: What to do with wrong requests.
+// TODO: Fix delete user with wrong id. 
+
+// TODO: Learn more about the use packages: csv-parser, createReadStream, pipe function
+// TODO: delete all unnecessary dependencies from package.json
+// TODO: go over all the description of the functions & spellings
+
 /*----------------------------------------------------------------
 constants 
 /*----------------------------------------------------------------
-// TODO: understand diff between obj and map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+// TODO: learn about the diff between obj and map in JS: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
 /*----------------------------------------------------------------
 deceleration of constants 
 /*----------------------------------------------------------------*/
@@ -22,13 +30,13 @@ userTrie.options.min = 3
 add del prototype 
 /*----------------------------------------------------------------*/
 TrieSearch.prototype.delete = function (key, id) {
-  var keyArr = this.keyToArr(key),
+  const keyArr = this.keyToArr(key),
     self = this;
   const nodeArr = [];
   deleteNode(keyArr, id, this.root, nodeArr, this.root);
   function deleteNode(keyArr, value, node, nodeArr, root) {
     while (keyArr.length != 0) {
-      var k = keyArr.shift().toLowerCase();
+      const k = keyArr.shift().toLowerCase();
       nodeArr.push(node[k]);
       node = node[k];
     }
@@ -37,7 +45,6 @@ TrieSearch.prototype.delete = function (key, id) {
   }
   function deleteNodesFromTree(nodeArr, root, value) {
     const i = nodeArr.length - 1;
-    console.log(nodeArr[i]);
     if (Array.isArray(nodeArr[i].value)) {
       const arr = nodeArr[i].value;
       let index = arr.indexOf(value);
@@ -69,7 +76,6 @@ TrieSearch.prototype.delete = function (key, id) {
 /*----------------------------------------------------------------
 initiates 
 /*----------------------------------------------------------------*/
-// TODO: go over all the description of the functions
 /**
  * @function readDataFromCsvFileAndInitiate
  * reads the data from the CSV file and initiates.
@@ -96,7 +102,6 @@ function readDataFromCsvFileAndInitiate() {
  * @function getAge
  * calc user age by DOB
  */
-// TODO: really calculate the users age
 const getUserYear = (dob) => {
   // const todayYear = new Date().getFullYear();
   const userYear = Number(dob.split("/")[2]);
@@ -186,7 +191,6 @@ const getUserByCountry = (country) => {
  */
 const getUserByAge = (age) => {
   const year = new Date().getFullYear() - age;
-  console.log(year);
   return userHashByYear.get(year)
     ? returnUserFunction("year", year)
     : "Age doesn't exist";
@@ -254,17 +258,17 @@ const returnUserFunction = (op, val) => {
  */
 const deleteUser = (id) => {
   id = id.toLowerCase();
-  // if user doesn't exists:
-  const user = userHashByID.get(id);
-  console.log(user);
-  if (user) {
+  // check if user exists and get its data:
+  console.log("Print user before deleting", user);
+  if (user &&  user != "User doesn't exist") {
     deleteUserFromHashCountry(user.country, id);
     deleteUserFromHashAge(user.dob, id);
     deleteUserFromHashFullName(user.name, id);
     deleteUserFromHasTrie(user.name, id)
     userHashByID.delete(id);
+    console.log("User was delete");
     return id
-  } else return "User id doesn't exist";
+  } else return "/nUser id doesn't exist";
 };
 /**
  * @function deleteUserFromHashCountry
@@ -299,7 +303,6 @@ const deleteUserFromHashAge = (dob, id) => {
 const deleteUserFromHashFullName = (name, id) => {
   fullName = name.replace(" ", "").toLowerCase();
   const arrOfId = userHashByFullName.get(fullName);
-  console.log(arrOfId);
   const index = arrOfId.indexOf(id);
   if (index > -1) arrOfId.splice(index, 1);
   arrOfId.length === 0
