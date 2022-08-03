@@ -4,21 +4,68 @@ const csv = require("csv-parser");
 const TrieSearch = require("trie-search");
 
 // TODO: understand what csv-parser is & createReadStream & pipe
-
+// TODO: didn't use async await 
 /*----------------------------------------------------------------
 constants 
 /*----------------------------------------------------------------
 // TODO: understand diff between obj and map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-/**
- * const
- */
+/*----------------------------------------------------------------
+deceleration of constants 
+/*----------------------------------------------------------------*/
 const userHashByID = new Map();
 const userHashByCountry = new Map();
 const userHashByYear = new Map();
 const userHashByFullName = new Map();
-// const userTrie = new TrieSearch("name",{min: 3});
 const userTrie = new TrieSearch();
-
+userTrie.options.min = 3
+/*----------------------------------------------------------------
+add del prototype 
+/*----------------------------------------------------------------*/
+TrieSearch.prototype.delete = function (key, id) {
+  var keyArr = this.keyToArr(key),
+    self = this;
+  const nodeArr = [];
+  deleteNode(keyArr, id, this.root, nodeArr, this.root);
+  function deleteNode(keyArr, value, node, nodeArr, root) {
+    while (keyArr.length != 0) {
+      var k = keyArr.shift().toLowerCase();
+      nodeArr.push(node[k]);
+      node = node[k];
+    }
+    // deleteNodesFromTree(nodeArr,root,value)
+    deleteNodesEndValueFromTree(node, root, value);
+  }
+  function deleteNodesFromTree(nodeArr, root, value) {
+    const i = nodeArr.length - 1;
+    console.log(nodeArr[i]);
+    if (Array.isArray(nodeArr[i].value)) {
+      const arr = nodeArr[i].value;
+      let index = arr.indexOf(value);
+      if (index > -1) {
+        arr.splice(index, 1);
+      }
+    } else if (nodeArr[i].value == value) {
+      nodeArr[i].value.pop();
+      nodeArr[i] = "";
+      self.size--;
+    }
+  }
+  function deleteNodesEndValueFromTree(lastNode, root, value) {
+    if (lastNode.value.length > 1) {
+      const arr = lastNode.value;
+      let index = arr.indexOf(value);
+      if (index > -1) {
+        arr.splice(index, 1);
+      }
+    } else if (lastNode.value[0] === value) {
+      lastNode.value.pop();
+      lastNode = "";
+      self.size--;
+    }
+  }
+  this.clearCache();
+  return id;
+};
 /*----------------------------------------------------------------
 initiates 
 /*----------------------------------------------------------------*/
@@ -28,7 +75,7 @@ initiates
  * reads the data from the CSV file and initiates.
  */
 function readDataFromCsvFileAndInitiate() {
-  fs.createReadStream("mockData.csv")
+  fs.createReadStream("data.csv")
     .pipe(
       csv({
         mapHeaders: ({ header, index }) => header.toLowerCase(),
@@ -62,14 +109,14 @@ Adding
 
 /**
  * @function addUserToId
- * add user to Id to userHashByID Hash tabe
+ * add user to Id to userHashByID Hash table
  */
 const addUserToId = (user) => {
   userHashByID.set(user.id, user);
 };
 /**
  * @function addUserToCountry
- * add user to userHashByCountry Hash tabe
+ * add user to userHashByCountry Hash table
  */
 const addUserToCountry = (user) => {
   const country = user.country.toLowerCase();
@@ -82,7 +129,7 @@ const addUserToCountry = (user) => {
 };
 /**
  * @function addUserToYear
- * add user to userHashByYear Hash tabe
+ * add user to userHashByYear Hash table
  */
 const addUserToYear = (user) => {
   const year = getUserYear(user.dob);
@@ -121,7 +168,7 @@ get
  */
 const getUserById = (id) => {
   id = id.toLowerCase();
-  return userHashByID.get(id) ? userHashByID.get(id) : "User dosen't exist";
+  return userHashByID.get(id) ? userHashByID.get(id) : "User doesn't exist";
 };
 /**
  * @function getUserByCountry
@@ -130,8 +177,8 @@ const getUserById = (id) => {
 const getUserByCountry = (country) => {
   country = country.toLowerCase();
   return userHashByCountry.get(country)
-    ? returnUserFunction("country",country)
-    : "Country dosen't exist";
+    ? returnUserFunction("country", country)
+    : "Country doesn't exist";
 };
 /**
  * @function getUserByAge
@@ -141,8 +188,8 @@ const getUserByAge = (age) => {
   const year = new Date().getFullYear() - age;
   console.log(year);
   return userHashByYear.get(year)
-    ? returnUserFunction("year",year)
-    : "Age dosen't exist";
+    ? returnUserFunction("year", year)
+    : "Age doesn't exist";
 };
 /**
  * @function getUserByName
@@ -154,17 +201,17 @@ const getUserByName = (name) => {
     fullName = name.replace(" ", "").toLowerCase();
     return userHashByFullName.get(fullName)
       ? returnUserFunction("fullName", fullName)
-      : "user dosen't exist";
+      : "user doesn't exist";
   }
-  // not a full name => call trie
-  return returnUserFunction("name", name);
+  // not a full name check if its length is more then 3 => call trie
+  else if (name.length >= 3) return returnUserFunction("name", name);
+  else return "Partial match minimum 3 chars"
 };
 /**
  * @function returnUserFunction
  * get id array and return user obj
  */
 const returnUserFunction = (op, val) => {
-  const returnArr = [];
   let arrOfId;
   switch (op) {
     case "name": {
@@ -185,12 +232,14 @@ const returnUserFunction = (op, val) => {
       break;
     }
   }
-  return arrOfId
-    ? arrOfId.filter((id)=> {
-      return userHashByID.get(id) !== undefined
-    }).map((id) => {
-        return userHashByID.get(id);
-      })
+  return arrOfId && arrOfId.length > 0
+    ? arrOfId
+        .filter((id) => {
+          return userHashByID.get(id) !== undefined;
+        })
+        .map((id) => {
+          return userHashByID.get(id);
+        })
     : "no user found";
 };
 
@@ -199,21 +248,23 @@ const returnUserFunction = (op, val) => {
 /*----------------------------------------------------------------*/
 /**
  * @function deleteUser
- * Main function for deleteing a user.
- * calling all relevant function to delete the user.
+ * Main function for deleting a user.
+ * calling all relevant functions to delete the user.
  * and delete the user from userHashByID
  */
 const deleteUser = (id) => {
   id = id.toLowerCase();
-  // if user doesnt exists:
+  // if user doesn't exists:
   const user = userHashByID.get(id);
   console.log(user);
   if (user) {
     deleteUserFromHashCountry(user.country, id);
     deleteUserFromHashAge(user.dob, id);
     deleteUserFromHashFullName(user.name, id);
+    deleteUserFromHasTrie(user.name, id)
     userHashByID.delete(id);
-  } else return "User id dosen't exist";
+    return id
+  } else return "User id doesn't exist";
 };
 /**
  * @function deleteUserFromHashCountry
@@ -254,6 +305,15 @@ const deleteUserFromHashFullName = (name, id) => {
   arrOfId.length === 0
     ? userHashByFullName.delete(fullName)
     : userHashByFullName.set(fullName, arrOfId);
+};
+/**
+ * @function deleteUserFromHasTrie
+ * delete from userTrie
+ */
+const deleteUserFromHasTrie = (name, id) => {
+  const [firstName, lastName] = name.split(" ");
+  userTrie.delete(firstName, id);
+  userTrie.delete(lastName, id);
 };
 
 /*----------------------------------------------------------------
