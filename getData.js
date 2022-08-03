@@ -3,19 +3,13 @@ const csv = require("csv-parser");
 const TrieSearch = require("trie-search");
 
 // TODO: To calculate the users real age!!!!
-// TODO: What to do with wrong requests.
-// TODO: Fix delete user with wrong id.
 
 // TODO: Learn more about the use packages: csv-parser, createReadStream, pipe function
 // TODO: delete all unnecessary dependencies from package.json
 // TODO: go over all the description of the functions & spellings
-
-/*----------------------------------------------------------------
-constants 
-/*----------------------------------------------------------------
 // TODO: learn about the diff between obj and map in JS: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
 /*----------------------------------------------------------------
-deceleration of constants 
+Deceleration of constants 
 /*----------------------------------------------------------------*/
 const userHashByID = new Map();
 const userHashByCountry = new Map();
@@ -24,11 +18,11 @@ const userHashByFullName = new Map();
 const userTrie = new TrieSearch();
 userTrie.options.min = 3;
 /*----------------------------------------------------------------
-initiates 
+Initiate Function
 /*----------------------------------------------------------------*/
 /**
  * @function readDataFromCsvFileAndInitiate
- * reads the data from the CSV file and call the add functions.
+ * Reads the data from the CSV file and call the add functions.
  * The function doesn't check the validity of the user as it assumes that it has been given a valid CSV file.
  */
 function readDataFromCsvFileAndInitiate() {
@@ -50,19 +44,19 @@ function readDataFromCsvFileAndInitiate() {
     });
 }
 /*----------------------------------------------------------------
-Adding 
+Add Functions
 /*----------------------------------------------------------------*/
 
 /**
  * @function addUserToId
- * add user id to userHashByID Hash table
+ * Add user id to userHashByID Hash table
  */
 const addUserToId = (user) => {
   userHashByID.set(user.id, user);
 };
 /**
  * @function addUserToCountry
- * add user country to userHashByCountry Hash table
+ * Add user country to userHashByCountry Hash table
  */
 const addUserToCountry = (user) => {
   const country = user.country.toLowerCase();
@@ -75,7 +69,7 @@ const addUserToCountry = (user) => {
 };
 /**
  * @function addUserToYear
- * add user year of birth to userHashByYear Hash table.
+ * Add user year of birth to userHashByYear Hash table.
  */
 const addUserToYear = (user) => {
   const year = getUserYear(user.dob);
@@ -87,14 +81,14 @@ const addUserToYear = (user) => {
 };
 /**
  * @function addUserToTrie
- * add user to addUserToTrie trie-search
+ * Add user to addUserToTrie trie-search
  */
 const addUserToTrie = (user) => {
   userTrie.map(user.name, user.id);
 };
 /**
  * @function addUserToFullName
- * add user full name to addUserToFullName hash table
+ * Add user full name to addUserToFullName hash table
  */
 const addUserToFullName = (user) => {
   const name = user.name.toLowerCase();
@@ -105,7 +99,7 @@ const addUserToFullName = (user) => {
   } else userHashByFullName.set(name, [user.id]);
 };
 /*----------------------------------------------------------------
-get 
+Get Functions
 /*----------------------------------------------------------------*/
 /**
  * @function getUserById
@@ -130,7 +124,7 @@ const getUsersByCountry = (country) => {
  * @function getUsersByAge
  * Get users by age.
  * The function doesn't calculate the user exact age.
- * The age is calculated only from the user year of birth.
+ * It should be noted that the age is calculated based on the year of birth only without taking into account the full DOB.
  */
 const getUsersByAge = (age) => {
   const userYearOfBirth = new Date().getFullYear() - age;
@@ -172,33 +166,34 @@ const returnUserObject = (arrOfId) => {
 };
 
 /*----------------------------------------------------------------
- delete
+ Delete Functions
 /*----------------------------------------------------------------*/
 /**
  * @function deleteUser
  * Main function for deleting a user.
- * calling all relevant functions to delete the user.
- * and delete the user from userHashByID
+ * The function calls all relevant functions to delete the user from the memory.
+ * At the end the function delete the user from userHashByID hash table.
  */
 const deleteUser = (id) => {
   id = id.toLowerCase();
   // check if user exists and get its data:
   const user = getUserById(id);
-  console.log("Print user before deleting", user);
-  // user && !user.err
-  if (user && user != "User doesn't exist") {
+  console.log("Print user before delete", user);
+  if (user && !user.err) {
     deleteUserFromHashCountry(user.country, id);
     deleteUserFromHashAge(user.dob, id);
     deleteUserFromHashFullName(user.name, id);
     deleteUserFromHasTrie(user.name, id);
     userHashByID.delete(id);
-    console.log("User was delete");
-    return id;
-  } else return "/nUser id doesn't exist";
+    console.log("User deleted successfully");
+  } else {
+    console.log("Error User id not found");
+    return {err: "User id not found"};
+  }
 };
 /**
  * @function deleteUserFromHashCountry
- * delete from userHashByCountry
+ * Delete from userHashByCountry hash table.
  */
 const deleteUserFromHashCountry = (country, id) => {
   country = country.toLowerCase();
@@ -211,7 +206,7 @@ const deleteUserFromHashCountry = (country, id) => {
 };
 /**
  * @function deleteUserFromHashAge
- * delete from userHashByAge
+ * Delete from userHashByAge hash table.
  */
 const deleteUserFromHashAge = (dob, id) => {
   const userYear = getUserYear(dob);
@@ -224,7 +219,7 @@ const deleteUserFromHashAge = (dob, id) => {
 };
 /**
  * @function deleteUserFromHashFullName
- * delete from userHashByFullName
+ * Delete from userHashByFullName hash table.
  */
 const deleteUserFromHashFullName = (name, id) => {
   fullName = name.toLowerCase();
@@ -237,7 +232,7 @@ const deleteUserFromHashFullName = (name, id) => {
 };
 /**
  * @function deleteUserFromHasTrie
- * delete from userTrie
+ * Delete from userTrie
  */
 const deleteUserFromHasTrie = (name, id) => {
   const [firstName, lastName] = name.split(" ");
@@ -245,29 +240,40 @@ const deleteUserFromHasTrie = (name, id) => {
   userTrie.delete(lastName, id);
 };
 /*----------------------------------------------------------------
-Delete prototype
+Delete trie-search Prototype & Functions
 /*----------------------------------------------------------------*/
 /**
+ * @function TrieSearch.prototype.delete
+ * Implementation of a delete last node value from the tree.
+ * @param name - the user name
+ * @param id - the user id
+ */
+ TrieSearch.prototype.delete = (name, id) => {
+  const nameArray = userTrie.keyToArr(name);
+  getTheEndNode(nameArray, id, userTrie.root);
+  userTrie.clearCache();
+};
+/**
  * @function getTheEndNode
- * get the last node of the key where the value is store, and called the delete function.
- * @param keyArr - array of chars e.g ['l','i','n','o','y']
- * @param value - The id of the stored name e.g "ce26edf2-39dd-56d0-87fa-21af60c2aae5"
+ * Get the last node (last char) of the name where the id is store. Then call the delete function.
+ * @param nameArray - array of chars e.g ['l','i','n','o','y']
+ * @param id - The id of the stored name
  * @param node - the tree root
  */
-const getTheEndNode = (keyArr, value, node) => {
+const getTheEndNode = (nameArray, id, node) => {
   const root = node;
-  while (keyArr.length != 0) {
-    const k = keyArr.shift().toLowerCase();
+  while (nameArray.length != 0) {
+    const k = nameArray.shift().toLowerCase();
     node = node[k];
   }
-  deleteNodesEndValueFromTree(node, root, value);
+  deleteNodesEndValueFromTree(node, root, id);
 };
 /**
  * @function deleteNodesEndValueFromTree
- * delete the end node value from the tree
- * @param lastNode - the last node of the key where the value is stored
+ * Delete the end node value (id) from the tree
+ * @param lastNode - the last node of the name where the id is stored
  * @param root - the tree root
- * @param id - the id of the key that need to be deleted
+ * @param id - user id
  */
 const deleteNodesEndValueFromTree = (lastNode, root, id) => {
   // if there is more then one id for this name:
@@ -284,25 +290,14 @@ const deleteNodesEndValueFromTree = (lastNode, root, id) => {
     root.size--;
   }
 };
-/**
- * @function TrieSearch.prototype.delete
- * Implementation of a delete last node value from the tree.
- * @param key - the user name
- * @param id - the user id
- */
-TrieSearch.prototype.delete = (key, id) => {
-  const keyArr = userTrie.keyToArr(key);
-  getTheEndNode(keyArr, id, userTrie.root);
-  userTrie.clearCache();
-};
 /*----------------------------------------------------------------
-Delete prototype & utile
+Utile
 /*----------------------------------------------------------------*/
 /**
- * @function getAge
- * calc user age from DOB.
- * @param dob - user date of birth
- * @return userYear - the year that the user was born.
+ * @function getUserYear
+ * Get user year of birth from DOB.
+ * @param dob - User date of birth
+ * @return userYear - User year of birth.
  */
 const getUserYear = (dob) => {
   const userYear = Number(dob.split("/")[2]);
