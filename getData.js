@@ -1,13 +1,6 @@
 const fs = require("fs-extra");
 const csv = require("csv-parser");
 const TrieSearch = require("trie-search");
-
-// TODO: To calculate the users real age!!!!
-
-// TODO: Learn more about the use packages: csv-parser, createReadStream, pipe function
-// TODO: delete all unnecessary dependencies from package.json
-// TODO: go over all the description of the functions & spellings
-// TODO: learn about the diff between obj and map in JS: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
 /*----------------------------------------------------------------
 Deceleration of constants 
 /*----------------------------------------------------------------*/
