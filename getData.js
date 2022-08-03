@@ -143,7 +143,7 @@ const getUsersByName = (name) => {
     const arrOfId = userHashByFullName.get(fullName);
     return arrOfId ? returnUserObject(arrOfId) : { err: "User not found" };
   }
-  // not a full name => check if its length is more then 3 => call trie
+  // not a full name => check if its length is more than 3 => call trie
   else if (name.length >= 3) {
     const arrOfId = userTrie.search(name).splice(0);
     return arrOfId.length
@@ -255,7 +255,7 @@ Delete trie-search Prototype & Functions
 };
 /**
  * @function getTheEndNode
- * Get the last node (last char) of the name where the id is store. Then call the delete function.
+ * Get the last node (last char) of the name where the id is stored.Call the delete function.
  * @param nameArray - array of chars e.g ['l','i','n','o','y']
  * @param id - The id of the stored name
  * @param node - the tree root
@@ -276,7 +276,7 @@ const getTheEndNode = (nameArray, id, node) => {
  * @param id - user id
  */
 const deleteNodesEndValueFromTree = (lastNode, root, id) => {
-  // if there is more then one id for this name:
+  // if there is more than one id for this name:
   if (lastNode.value.length > 1) {
     const arrOfId = lastNode.value;
     let index = arrOfId.indexOf(id);
