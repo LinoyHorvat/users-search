@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const usersModel = require('./model/users');
 const PORT = process.env.PORT || 8000;
+const data = require('./getData')
 
 const app = express();
 const SUPPORTED_QUERY = ['country', 'name', 'email', 'age'];
@@ -83,5 +84,4 @@ app.use((req, res) => {
     console.log(`Test Server listening.. Access it using address: http://localhost:${PORT}`);
   });
 
-const data = require('./getData')
 data.readDataFromCsvFileAndInitiate();
